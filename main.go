@@ -37,24 +37,31 @@ func modifyRequest(r *http.Request) *http.Request {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	req := modifyRequest(r)
-	if req != nil {
-		client := http.Client{}
-		res, err := client.Do(req)
-		if err != nil {
-			fmt.Println(err.Error())
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			fmt.Println(err.Error())
-			w.Write([]byte(err.Error()))
-			return
-		}
-		w.Write(body)
+	if !r.URL.Query().Has("aid") || !r.URL.Query().Has("vid") {
+		w.Write([]byte("Home page."))
+		return
 	}
+	req := modifyRequest(r)
+	if req == nil {
+		w.Write([]byte("Some thing went wrong. No content."))
+		return
+	}
+	client := http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+	w.Header().Add("Content-Type", "text/html; charset=utf-8")
+	w.Write(body)
 }
 
 func main() {
