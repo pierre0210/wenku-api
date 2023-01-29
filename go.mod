@@ -1,4 +1,4 @@
-module github.com/pierre0210/wenku-reverseproxy
+module github.com/pierre0210/wenku-api
 
 go 1.19
 
