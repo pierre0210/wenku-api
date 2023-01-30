@@ -13,8 +13,9 @@ func main() {
 	flag.Parse()
 	router := gin.Default()
 
-	router.GET("/novel/volume/:aid/:vid", novel.HandleGetVolume)
-	//router.GET("/novel/chapter")
+	novelRouter := router.Group("/novel")
+	novelRouter.GET("/volume/:aid/:vid", novel.HandleGetVolume)
+	novelRouter.GET("/chapter/:aid/:vid/:cid", novel.HandleGetChapter)
 
 	addr := fmt.Sprintf("localhost:%d", *port)
 	router.Run(addr)
