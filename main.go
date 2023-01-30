@@ -1,82 +1,21 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strconv"
 
-	"github.com/pierre0210/wenku-api/internal/wenku"
+	"github.com/gin-gonic/gin"
+	"github.com/pierre0210/wenku-api/api/novel"
 )
-
-type Novel struct {
-	Aid     int
-	Volume  int
-	Chapter int
-}
-
-func modifyRequest(r *http.Request) (*http.Request, error) {
-	var novel Novel
-	//err := json.NewDecoder(r.Body).Decode(&novel)
-	novel.Aid, _ = strconv.Atoi(r.URL.Query().Get("aid"))
-	novel.Volume, _ = strconv.Atoi(r.URL.Query().Get("vid"))
-
-	volumeList := wenku.GetVolumeList(novel.Aid)
-	if novel.Volume-1 >= len(volumeList) {
-		fmt.Println("Index out of range.")
-		return nil, errors.New("Index out of range")
-	}
-	vid := volumeList[(novel.Volume - 1)].Vid
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://dl.wenku8.com/pack.php?aid=%d&vid=%d", novel.Aid, vid), nil)
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil, err
-	}
-	return req, nil
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	if !r.URL.Query().Has("aid") || !r.URL.Query().Has("vid") {
-		w.Write([]byte("Home page."))
-		return
-	}
-	req, err := modifyRequest(r)
-	if err != nil {
-		w.WriteHeader(400)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	client := http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err.Error())
-		w.WriteHeader(500)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err.Error())
-		w.WriteHeader(500)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	w.Header().Add("Content-Type", "text/html; charset=utf-8")
-	w.Write(body)
-}
 
 func main() {
 	port := flag.Int("p", 5000, "Port")
 	flag.Parse()
+	router := gin.Default()
 
-	addr := fmt.Sprintf(":%d", *port)
+	router.GET("/novel/volume/:aid/:vid", novel.HandleGetVolume)
+	//router.GET("/novel/chapter")
 
-	http.HandleFunc("/", handler)
-	err := http.ListenAndServe(addr, nil)
-	if err != nil {
-		panic(err)
-	}
+	addr := fmt.Sprintf("localhost:%d", *port)
+	router.Run(addr)
 }
