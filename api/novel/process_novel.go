@@ -32,9 +32,15 @@ type novelIndex struct {
 func splitVolume(content string, volume wenku.Volume) {
 	for index, chapter := range volume.ChapterList {
 		r, _ := regexp.Compile(`<div class="chaptertitle"><a name="` + strconv.Itoa(chapter.Cid) + `">[\s\S]+?<span></span></div>`)
+		rHtml, _ := regexp.Compile("<[^<>]+>")
+		rUrl, _ := regexp.Compile(`https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)`)
 		volume.ChapterList[index].Content = r.FindString(content)
 		volume.ChapterList[index].Content = strings.ReplaceAll(volume.ChapterList[index].Content, "<br />\r\n<br />", "\r\n")
 		volume.ChapterList[index].Content = strings.ReplaceAll(volume.ChapterList[index].Content, "&nbsp;", " ")
+		volume.ChapterList[index].Content = strings.ReplaceAll(volume.ChapterList[index].Content, "</a></div>", "")
+		volume.ChapterList[index].Content = strings.ReplaceAll(volume.ChapterList[index].Content, "</a>", "\r\n")
+		volume.ChapterList[index].Content = rHtml.ReplaceAllString(volume.ChapterList[index].Content, "")
+		volume.ChapterList[index].Urls = rUrl.FindAllString(volume.ChapterList[index].Content, -1)
 	}
 }
 

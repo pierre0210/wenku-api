@@ -17,9 +17,10 @@ type Volume struct {
 }
 
 type Chapter struct {
-	Title   string `json:"title"`
-	Cid     int    `json:"cid"`
-	Content string `json:"content"`
+	Title   string   `json:"title"`
+	Cid     int      `json:"cid"`
+	Content string   `json:"content"`
+	Urls    []string `json:"urls"`
 }
 
 func GetVolumeList(aid int) (string, []Volume) {
