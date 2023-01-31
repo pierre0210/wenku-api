@@ -10,14 +10,15 @@ import (
 )
 
 type Volume struct {
-	Title       string
-	Vid         int
-	ChapterList []Chapter
+	Title       string    `json:"title"`
+	Vid         int       `json:"vid"`
+	ChapterList []Chapter `json:"chapterList"`
 }
 
 type Chapter struct {
-	Title string
-	Cid   int
+	Title   string `json:"title"`
+	Cid     int    `json:"cid"`
+	Content string `json:"content"`
 }
 
 func GetVolumeList(aid int) []Volume {
