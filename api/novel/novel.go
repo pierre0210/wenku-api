@@ -13,11 +13,12 @@ import (
 
 type volumeResponse struct {
 	Message string `json:"message"`
-	Volume  string `json:"volume"`
+	Content string `json:"content"`
 }
 
 func getVolume(aidNum int, vidNum int) (int, volumeResponse) {
 	volumeList := wenku.GetVolumeList(aidNum)
+	log.Println(len(volumeList[len(volumeList)-1].ChapterList))
 	vidNum = volumeList[(vidNum - 1)].Vid
 
 	req, _ := http.NewRequest("GET", fmt.Sprintf("https://dl.wenku8.com/pack.php?aid=%d&vid=%d", aidNum, vidNum), nil)
@@ -38,7 +39,7 @@ func getVolume(aidNum int, vidNum int) (int, volumeResponse) {
 		log.Println(err.Error())
 		return 500, volumeResponse{Message: err.Error()}
 	}
-	return 200, volumeResponse{Message: "Volume found.", Volume: string(body)}
+	return 200, volumeResponse{Message: "Volume found.", Content: string(body)}
 }
 
 func HandleGetVolume(c *gin.Context) {
