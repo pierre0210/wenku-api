@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -26,6 +27,7 @@ type chapterIndex struct {
 type novelIndex struct {
 	Title      string        `json:"title"`
 	Aid        int           `json:"aid"`
+	Cover      string        `json:"cover"`
 	VolumeList []volumeIndex `json:"volumeList"`
 }
 
@@ -95,6 +97,7 @@ func getIndex(aid int) (int, indexResponse) {
 	if index.Title == "" || len(volumeList) == 0 {
 		return 404, indexResponse{Message: "Not found."}
 	}
+	index.Cover = fmt.Sprintf("https://img.wenku8.com/image/%d/%d/%ds.jpg", int(math.Floor(float64(aid)/1000)), aid, aid)
 	for _, volume := range volumeList {
 		index.VolumeList = append(index.VolumeList, volumeIndex{Title: volume.Title, Vid: volume.Vid})
 		for _, chapter := range volume.ChapterList {
