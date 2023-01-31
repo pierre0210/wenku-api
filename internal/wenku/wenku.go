@@ -22,9 +22,14 @@ type Chapter struct {
 	Content string `json:"content"`
 }
 
-func GetVolumeList(aid int) []Volume {
+func GetVolumeList(aid int) (string, []Volume) {
 	var volumeList []Volume
+	var novelTitle string
 	c := colly.NewCollector()
+	c.OnHTML("#title", func(h *colly.HTMLElement) {
+		titleByte, _ := util.GbkToUtf8([]byte(h.Text))
+		novelTitle = string(titleByte)
+	})
 	c.OnHTML("td", func(h *colly.HTMLElement) {
 		if h.DOM.HasClass("vcss") {
 			var vol Volume
@@ -48,5 +53,5 @@ func GetVolumeList(aid int) []Volume {
 
 	c.Visit(fmt.Sprintf("https://www.wenku8.net/modules/article/reader.php?aid=%d", aid))
 
-	return volumeList
+	return novelTitle, volumeList
 }

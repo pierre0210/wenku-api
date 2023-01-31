@@ -16,6 +16,7 @@ func main() {
 	novelRouter := router.Group("/novel")
 	novelRouter.GET("/volume/:aid/:vid", novel.HandleGetVolume)
 	novelRouter.GET("/chapter/:aid/:vid/:cid", novel.HandleGetChapter)
+	novelRouter.GET("/index/:aid", novel.HandleGetIndex)
 
 	addr := fmt.Sprintf("localhost:%d", *port)
 	router.Run(addr)
