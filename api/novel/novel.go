@@ -30,7 +30,6 @@ func splitVolume(content string, volume wenku.Volume) {
 		volume.ChapterList[index].Content = strings.ReplaceAll(volume.ChapterList[index].Content, "<br />\r\n<br />", "\r\n")
 		volume.ChapterList[index].Content = strings.ReplaceAll(volume.ChapterList[index].Content, "&nbsp;", " ")
 	}
-	log.Println(volume.ChapterList[0].Content)
 }
 
 func getVolume(aidNum int, vidNum int) (int, volumeResponse, wenku.Volume) {
@@ -87,8 +86,8 @@ func HandleGetVolume(c *gin.Context) {
 		c.JSON(400, volumeResponse{Message: "Invalid params data type."})
 		return
 	}
-	statusCode, res, _ := getVolume(aidNum, vidNum)
-	c.JSON(statusCode, res)
+	statusCode, volumeRes, _ := getVolume(aidNum, vidNum)
+	c.JSON(statusCode, volumeRes)
 }
 
 func HandleGetChapter(c *gin.Context) {
@@ -103,6 +102,6 @@ func HandleGetChapter(c *gin.Context) {
 		c.JSON(400, volumeResponse{Message: "Invalid params data type."})
 		return
 	}
-	statusCode, chapter := getChapter(aidNum, vidNum, cidNum)
-	c.JSON(statusCode, chapter)
+	statusCode, chapterRes := getChapter(aidNum, vidNum, cidNum)
+	c.JSON(statusCode, chapterRes)
 }
