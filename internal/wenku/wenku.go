@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly"
+	"github.com/pierre0210/wenku-api/internal/util"
 )
 
 type Volume struct {
@@ -32,12 +33,14 @@ func GetVolumeList(aid int) []Volume {
 				log.Println(err.Error())
 				return
 			}
-			vol.Title = h.Text
+			titleByte, _ := util.GbkToUtf8([]byte(h.Text))
+			vol.Title = string(titleByte)
 			vol.Vid = vid
 			volumeList = append(volumeList, vol)
 		} else if h.DOM.HasClass("ccss") && h.ChildAttr("a", "href") != "" {
 			var ch Chapter
-			ch.Title = h.ChildText("a")
+			titleByte, _ := util.GbkToUtf8([]byte(h.ChildText("a")))
+			ch.Title = string(titleByte)
 			ch.Cid, _ = strconv.Atoi(strings.Split(h.ChildAttr("a", "href"), "&cid=")[1])
 			volumeList[len(volumeList)-1].ChapterList = append(volumeList[len(volumeList)-1].ChapterList, ch)
 		}
