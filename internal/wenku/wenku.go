@@ -30,7 +30,7 @@ func GetVolumeList(aid int) (string, string, []Volume) {
 	c := colly.NewCollector()
 	c.OnHTML("#title", func(h *colly.HTMLElement) {
 		titleByte, _ := util.GbkToUtf8([]byte(h.Text))
-		twTitle, _ := util.SimplifyToTW(string(titleByte))
+		twTitle, _ := util.SimplifiedToTW(string(titleByte))
 		novelTitle = twTitle
 	})
 	c.OnHTML("#info", func(h *colly.HTMLElement) {
@@ -46,14 +46,14 @@ func GetVolumeList(aid int) (string, string, []Volume) {
 				return
 			}
 			titleByte, _ := util.GbkToUtf8([]byte(h.Text))
-			twTitle, _ := util.SimplifyToTW(string(titleByte))
+			twTitle, _ := util.SimplifiedToTW(string(titleByte))
 			vol.Title = twTitle
 			vol.Vid = vid
 			volumeList = append(volumeList, vol)
 		} else if h.DOM.HasClass("ccss") && h.ChildAttr("a", "href") != "" {
 			var ch Chapter
 			titleByte, _ := util.GbkToUtf8([]byte(h.ChildText("a")))
-			twTitle, _ := util.SimplifyToTW(string(titleByte))
+			twTitle, _ := util.SimplifiedToTW(string(titleByte))
 			ch.Title = twTitle
 			ch.Cid, _ = strconv.Atoi(strings.Split(h.ChildAttr("a", "href"), "&cid=")[1])
 			volumeList[len(volumeList)-1].ChapterList = append(volumeList[len(volumeList)-1].ChapterList, ch)

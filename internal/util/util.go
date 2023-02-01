@@ -31,7 +31,7 @@ func Utf8ToBig5(b []byte) ([]byte, error) {
 	return data, nil
 }
 
-func SimplifyToTW(content string) (string, error) {
+func SimplifiedToTW(content string) (string, error) {
 	result, err := s2tw.Convert(content)
 	if err != nil {
 		log.Println(err)
