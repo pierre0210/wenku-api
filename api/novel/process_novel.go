@@ -13,9 +13,8 @@ import (
 
 	"github.com/pierre0210/wenku-api/internal/database"
 	chapterTable "github.com/pierre0210/wenku-api/internal/database/table/chapter"
-
-	//"github.com/pierre0210/wenku-api/internal/util"
 	"github.com/pierre0210/wenku-api/internal/wenku"
+	//"github.com/pierre0210/wenku-api/internal/util"
 )
 
 type volumeIndex struct {
@@ -52,6 +51,7 @@ func splitVolume(content string, txtContent string, volume wenku.Volume, aid int
 		htmlChapter = rHtml.ReplaceAllString(htmlChapter, "")
 		//volume.ChapterList[index].Content, _ = util.SimplifyToTW(volume.ChapterList[index].Content)
 		volume.ChapterList[index].Urls = rUrl.FindAllString(htmlChapter, -1)
+		//volume.ChapterList[index].Content, _ = util.TraditionalToTW(txtChapter[(index + 1)])
 		volume.ChapterList[index].Content = txtChapter[(index + 1)]
 
 		//chapterExists, _ := chapterTable.CheckChapter(database.DB, aid, vid, cid)

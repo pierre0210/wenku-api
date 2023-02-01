@@ -12,6 +12,7 @@ import (
 )
 
 var s2tw, _ = gocc.New("s2tw")
+var t2tw, _ = gocc.New("t2tw")
 
 func GbkToUtf8(b []byte) ([]byte, error) {
 	reader := transform.NewReader(bytes.NewReader(b), simplifiedchinese.GBK.NewDecoder())
@@ -33,6 +34,15 @@ func Utf8ToBig5(b []byte) ([]byte, error) {
 
 func SimplifiedToTW(content string) (string, error) {
 	result, err := s2tw.Convert(content)
+	if err != nil {
+		log.Println(err)
+		return content, err
+	}
+	return result, nil
+}
+
+func TraditionalToTW(content string) (string, error) {
+	result, err := t2tw.Convert(content)
 	if err != nil {
 		log.Println(err)
 		return content, err
