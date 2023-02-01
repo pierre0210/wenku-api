@@ -21,6 +21,10 @@ func main() {
 	novelRouter.GET("/chapter/:aid/:vid/:cid", novel.HandleGetChapter)
 	novelRouter.GET("/index/:aid", novel.HandleGetIndex)
 
+	authRouter := router.Group("/auth")
+	authRouter.POST("/signup")
+	authRouter.POST("/signin")
+
 	addr := fmt.Sprintf("localhost:%d", *port)
 	router.Run(addr)
 }
