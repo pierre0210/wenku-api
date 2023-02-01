@@ -6,12 +6,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pierre0210/wenku-api/api/novel"
+	"github.com/pierre0210/wenku-api/internal/database"
 )
 
 func main() {
 	port := flag.Int("p", 5000, "Port")
 	flag.Parse()
+
 	router := gin.Default()
+	database.InitDatabase()
 
 	novelRouter := router.Group("/novel")
 	novelRouter.GET("/volume/:aid/:vid", novel.HandleGetVolume)
