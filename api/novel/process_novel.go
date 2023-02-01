@@ -13,6 +13,7 @@ import (
 
 	"github.com/pierre0210/wenku-api/internal/database"
 	chapterTable "github.com/pierre0210/wenku-api/internal/database/table/chapter"
+	"github.com/pierre0210/wenku-api/internal/util"
 	"github.com/pierre0210/wenku-api/internal/wenku"
 )
 
@@ -29,6 +30,7 @@ type chapterIndex struct {
 
 type novelIndex struct {
 	Title      string        `json:"title"`
+	Author     string        `json:"author"`
 	Aid        int           `json:"aid"`
 	Cover      string        `json:"cover"`
 	VolumeList []volumeIndex `json:"volumeList"`
@@ -45,6 +47,7 @@ func splitVolume(content string, volume wenku.Volume, aid int, vid int) {
 		volume.ChapterList[index].Content = strings.ReplaceAll(volume.ChapterList[index].Content, "</a></div>", "")
 		volume.ChapterList[index].Content = strings.ReplaceAll(volume.ChapterList[index].Content, "</a>", "\r\n")
 		volume.ChapterList[index].Content = rHtml.ReplaceAllString(volume.ChapterList[index].Content, "")
+		volume.ChapterList[index].Content, _ = util.SimplifyToTW(volume.ChapterList[index].Content)
 		volume.ChapterList[index].Urls = rUrl.FindAllString(volume.ChapterList[index].Content, -1)
 
 		//chapterExists, _ := chapterTable.CheckChapter(database.DB, aid, vid, cid)
@@ -57,7 +60,7 @@ func splitVolume(content string, volume wenku.Volume, aid int, vid int) {
 }
 
 func getVolume(aidNum int, vidNum int) (int, volumeResponse, wenku.Volume) {
-	_, volumeList := wenku.GetVolumeList(aidNum)
+	_, _, volumeList := wenku.GetVolumeList(aidNum)
 	if len(volumeList) == 0 || vidNum > len(volumeList) {
 		return 404, volumeResponse{Message: "Not found."}, wenku.Volume{}
 	}
@@ -104,6 +107,7 @@ func getChapter(aid int, vid int, cid int) (int, chapterResponse) {
 		log.Println("Index out of range.")
 		return 404, chapterResponse{Message: "Index out of range."}
 	}
+
 	return 200, chapterResponse{Message: "Chapter found.", Content: volume.ChapterList[(cid - 1)]}
 }
 
@@ -111,7 +115,7 @@ func getIndex(aid int) (int, indexResponse) {
 	var index novelIndex
 	var volumeList []wenku.Volume
 	index.Aid = aid
-	index.Title, volumeList = wenku.GetVolumeList(aid)
+	index.Title, index.Author, volumeList = wenku.GetVolumeList(aid)
 	if index.Title == "" || len(volumeList) == 0 {
 		return 404, indexResponse{Message: "Not found."}
 	}

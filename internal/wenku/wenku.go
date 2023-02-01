@@ -23,13 +23,19 @@ type Chapter struct {
 	Urls    []string `json:"urls"`
 }
 
-func GetVolumeList(aid int) (string, []Volume) {
+func GetVolumeList(aid int) (string, string, []Volume) {
 	var volumeList []Volume
 	var novelTitle string
+	var novelAuthor string
 	c := colly.NewCollector()
 	c.OnHTML("#title", func(h *colly.HTMLElement) {
 		titleByte, _ := util.GbkToUtf8([]byte(h.Text))
-		novelTitle = string(titleByte)
+		twTitle, _ := util.SimplifyToTW(string(titleByte))
+		novelTitle = twTitle
+	})
+	c.OnHTML("#info", func(h *colly.HTMLElement) {
+		authorByte, _ := util.GbkToUtf8([]byte(h.Text))
+		novelAuthor = string(authorByte)
 	})
 	c.OnHTML("td", func(h *colly.HTMLElement) {
 		if h.DOM.HasClass("vcss") {
@@ -40,13 +46,15 @@ func GetVolumeList(aid int) (string, []Volume) {
 				return
 			}
 			titleByte, _ := util.GbkToUtf8([]byte(h.Text))
-			vol.Title = string(titleByte)
+			twTitle, _ := util.SimplifyToTW(string(titleByte))
+			vol.Title = twTitle
 			vol.Vid = vid
 			volumeList = append(volumeList, vol)
 		} else if h.DOM.HasClass("ccss") && h.ChildAttr("a", "href") != "" {
 			var ch Chapter
 			titleByte, _ := util.GbkToUtf8([]byte(h.ChildText("a")))
-			ch.Title = string(titleByte)
+			twTitle, _ := util.SimplifyToTW(string(titleByte))
+			ch.Title = twTitle
 			ch.Cid, _ = strconv.Atoi(strings.Split(h.ChildAttr("a", "href"), "&cid=")[1])
 			volumeList[len(volumeList)-1].ChapterList = append(volumeList[len(volumeList)-1].ChapterList, ch)
 		}
@@ -54,5 +62,5 @@ func GetVolumeList(aid int) (string, []Volume) {
 
 	c.Visit(fmt.Sprintf("https://www.wenku8.net/modules/article/reader.php?aid=%d", aid))
 
-	return novelTitle, volumeList
+	return novelTitle, novelAuthor, volumeList
 }
