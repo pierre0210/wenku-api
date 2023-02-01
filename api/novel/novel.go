@@ -34,7 +34,7 @@ func HandleGetVolume(c *gin.Context) {
 		c.JSON(400, volumeResponse{Message: "Invalid params data type."})
 		return
 	}
-	statusCode, volumeRes, _ := getVolume(aidNum, vidNum)
+	statusCode, _, volumeRes, _ := getVolume(aidNum, vidNum)
 	c.JSON(statusCode, volumeRes)
 }
 
