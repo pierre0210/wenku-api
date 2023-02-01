@@ -9,7 +9,7 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/pierre0210/wenku-api/internal/database/table"
+	"github.com/pierre0210/wenku-api/internal/database/table/chapter"
 )
 
 var DB *sql.DB
@@ -31,7 +31,7 @@ func InitDatabase() {
 	fatalError(err)
 	log.Println(fmt.Sprintf("%s connected.", dbPath))
 
-	_, err = table.Chapter(DB)
+	_, err = chapter.Chapter(DB)
 	fatalError(err)
 	log.Println("chapter_info table created.")
 }

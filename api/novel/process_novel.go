@@ -1,6 +1,7 @@
 package novel
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pierre0210/wenku-api/internal/database"
+	chapterTable "github.com/pierre0210/wenku-api/internal/database/table/chapter"
 	"github.com/pierre0210/wenku-api/internal/wenku"
 )
 
@@ -31,7 +34,7 @@ type novelIndex struct {
 	VolumeList []volumeIndex `json:"volumeList"`
 }
 
-func splitVolume(content string, volume wenku.Volume) {
+func splitVolume(content string, volume wenku.Volume, aid int, vid int) {
 	for index, chapter := range volume.ChapterList {
 		r, _ := regexp.Compile(`<div class="chaptertitle"><a name="` + strconv.Itoa(chapter.Cid) + `">[\s\S]+?<span></span></div>`)
 		rHtml, _ := regexp.Compile("<[^<>]+>")
@@ -43,6 +46,13 @@ func splitVolume(content string, volume wenku.Volume) {
 		volume.ChapterList[index].Content = strings.ReplaceAll(volume.ChapterList[index].Content, "</a>", "\r\n")
 		volume.ChapterList[index].Content = rHtml.ReplaceAllString(volume.ChapterList[index].Content, "")
 		volume.ChapterList[index].Urls = rUrl.FindAllString(volume.ChapterList[index].Content, -1)
+
+		//chapterExists, _ := chapterTable.CheckChapter(database.DB, aid, vid, cid)
+		contentObj, _ := json.Marshal(volume.ChapterList[index])
+		_, err := chapterTable.AddChapter(database.DB, aid, vid, index+1, chapter.Title, string(contentObj))
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 
@@ -76,12 +86,20 @@ func getVolume(aidNum int, vidNum int) (int, volumeResponse, wenku.Volume) {
 }
 
 func getChapter(aid int, vid int, cid int) (int, chapterResponse) {
+	chapterExists, _ := chapterTable.CheckChapter(database.DB, aid, vid, cid)
+	if chapterExists {
+		var chapterObj wenku.Chapter
+		_, _, content, _ := chapterTable.GetChapter(database.DB, aid, vid, cid)
+		json.Unmarshal([]byte(content), &chapterObj)
+
+		return 200, chapterResponse{Message: "Saved chapter found.", Content: chapterObj}
+	}
 	statusCode, res, volume := getVolume(aid, vid)
 	if statusCode != 200 {
 		log.Printf("%d %s\n", statusCode, res.Message)
 		return statusCode, chapterResponse{Message: res.Message}
 	}
-	splitVolume(res.Content, volume)
+	splitVolume(res.Content, volume, aid, vid)
 	if cid > len(volume.ChapterList) {
 		log.Println("Index out of range.")
 		return 404, chapterResponse{Message: "Index out of range."}
