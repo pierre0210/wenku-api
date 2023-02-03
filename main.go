@@ -16,9 +16,10 @@ func main() {
 	port := flag.Int("p", 5000, "Port")
 	flag.Parse()
 
+	err := godotenv.Load()
 	router := gin.Default()
 	database.InitDatabase()
-	err := godotenv.Load()
+
 	if err != nil {
 		log.Fatalln("Failed to load .env")
 	}
