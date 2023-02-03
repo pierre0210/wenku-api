@@ -1,6 +1,7 @@
 package user
 
 import (
+	"crypto/sha256"
 	"database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -28,6 +29,26 @@ func CheckUser(db *sql.DB, userName string) (bool, error) {
 		state = false
 	} else {
 		state = true
+	}
+
+	return state, nil
+}
+
+func CheckPassword(db *sql.DB, userName string, password string) (bool, error) {
+	var state bool
+	var dbHash [32]byte
+	stmt, _ := db.Prepare(`SELECT password FROM user_info WHERE user_name = ?`)
+	rows, err := stmt.Query(userName)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+	rows.Scan(&dbHash)
+	passHash := sha256.Sum256([]byte(password))
+	if passHash == dbHash {
+		state = true
+	} else {
+		state = false
 	}
 
 	return state, nil

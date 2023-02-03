@@ -3,8 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/pierre0210/wenku-api/api/auth"
 	"github.com/pierre0210/wenku-api/api/novel"
 	"github.com/pierre0210/wenku-api/internal/database"
 )
@@ -15,6 +18,10 @@ func main() {
 
 	router := gin.Default()
 	database.InitDatabase()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalln("Failed to load .env")
+	}
 
 	novelRouter := router.Group("/novel")
 	novelRouter.GET("/volume/:aid/:vid", novel.HandleGetVolume)
@@ -23,7 +30,7 @@ func main() {
 
 	authRouter := router.Group("/auth")
 	authRouter.POST("/signup")
-	authRouter.POST("/signin")
+	authRouter.POST("/signin", auth.HandleLogin)
 
 	addr := fmt.Sprintf("localhost:%d", *port)
 	router.Run(addr)
