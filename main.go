@@ -30,7 +30,7 @@ func main() {
 	novelRouter.GET("/index/:aid", novel.HandleGetIndex)
 
 	authRouter := router.Group("/auth")
-	authRouter.POST("/signup")
+	//authRouter.POST("/signup")
 	authRouter.POST("/signin", auth.HandleLogin)
 
 	addr := fmt.Sprintf("localhost:%d", *port)
