@@ -11,7 +11,8 @@ func User(db *sql.DB) (sql.Result, error) {
 	stmt, err := db.Prepare(`CREATE TABLE IF NOT EXISTS user_info(
 		user_name TEXT PRIMARY KEY,
 		password TEXT,
-		content TEXT
+		saved_novels TEXT
+		tags TEXT
 	)`)
 	result, err := stmt.Exec()
 	return result, err
