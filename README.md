@@ -2,5 +2,7 @@
 
 ## Todo
 - [ ] CORS
-- [ ] DB
+- [x] DB
 - [ ] JWT
+  - [x] login
+  - [ ] signup
