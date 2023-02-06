@@ -10,15 +10,15 @@ import (
 func User(db *sql.DB) (sql.Result, error) {
 	stmt, err := db.Prepare(`CREATE TABLE IF NOT EXISTS user_info(
 		user_name TEXT PRIMARY KEY,
-		password TEXT,
-		saved_novels TEXT
+		password TEXT NOT NULL,
+		saved_novels TEXT,
 		tags TEXT
 	)`)
 	result, err := stmt.Exec()
 	return result, err
 }
 
-func CheckUser(db *sql.DB, userName string) (bool, error) {
+func CheckIfUserExists(db *sql.DB, userName string) (bool, error) {
 	var state bool
 	stmt, _ := db.Prepare(`SELECT user_name FROM user_info WHERE user_name = ?`)
 	rows, err := stmt.Query(userName)
@@ -44,12 +44,28 @@ func CheckPassword(db *sql.DB, userName string, password string) (bool, error) {
 		return false, err
 	}
 	defer rows.Close()
+	rows.Next()
 	rows.Scan(&passHash)
-	if bcrypt.CompareHashAndPassword([]byte(passHash), []byte(password)) == nil {
+	err = bcrypt.CompareHashAndPassword([]byte(passHash), []byte(password))
+	if err == nil {
 		state = true
 	} else {
 		state = false
 	}
 
 	return state, nil
+}
+
+func SignUp(db *sql.DB, userName string, password string) (sql.Result, error) {
+	stmt, _ := db.Prepare(`INSERT INTO user_info(user_name, password) VALUES(?, ?)`)
+	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	result, err := stmt.Exec(userName, string(passHash))
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
