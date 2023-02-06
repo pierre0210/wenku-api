@@ -3,6 +3,6 @@
 ## Todo
 - [ ] CORS
 - [x] DB
-- [ ] JWT
+- [x] JWT
   - [x] login
-  - [ ] signup
+  - [x] signup
